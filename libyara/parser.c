@@ -422,8 +422,9 @@ int _yr_parser_write_string(
   return result;
 }
 
-#include <stdint.h>
 #include <limits.h>
+
+#include <yara/integers.h>
 
 
 YR_STRING* yr_parser_reduce_string_declaration(
@@ -968,6 +969,14 @@ int yr_parser_reduce_import(
   YR_OBJECT* module_structure;
 
   char* name;
+
+  if (module_name->length == 0)
+  {
+    compiler->last_result = ERROR_UNKNOWN_MODULE;
+    yr_compiler_set_error_extra_info(compiler, "");
+
+    return ERROR_UNKNOWN_MODULE;
+  }
 
   module_structure = (YR_OBJECT*) yr_hash_table_lookup(
       compiler->objects_table,

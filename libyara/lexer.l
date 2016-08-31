@@ -47,12 +47,11 @@ with noyywrap then we can remove this pragma.
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include <setjmp.h>
 #include <unistd.h>
 
-
+#include <yara/integers.h>
 #include <yara/lexer.h>
 #include <yara/sizedstr.h>
 #include <yara/error.h>
@@ -615,7 +614,7 @@ u?int(8|16|32)(be)? {
 }
 
 
-\{(({hexdigit}|[ \-|\?\[\]\(\)\n\t]|\/\*[^*]*\*\/)+|\/\/.*)+\}  {
+\{(({hexdigit}|[ \-|\?\[\]\(\)\n\r\t]|\/\*[^*]*\*\/)+|\/\/.*)+\}  {
   // Match hex-digits with whitespace or comments. The latter are stripped
   // out by hex_lexer.l
 
