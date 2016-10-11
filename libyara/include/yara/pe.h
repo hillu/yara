@@ -313,7 +313,7 @@ typedef struct _IMAGE_NT_HEADERS64 {
 #define IMAGE_FIRST_SECTION( ntheader ) ((PIMAGE_SECTION_HEADER) \
     ((BYTE*)ntheader + \
      FIELD_OFFSET( IMAGE_NT_HEADERS32, OptionalHeader ) + \
-     le16toh(((PIMAGE_NT_HEADERS32)(ntheader))->FileHeader.SizeOfOptionalHeader) \
+     yr_le16toh(((PIMAGE_NT_HEADERS32)(ntheader))->FileHeader.SizeOfOptionalHeader) \
     ))
 
 // Subsystem Values

@@ -32,7 +32,7 @@ case $host_os in
     darwin*) CFLAGS="$CFLAGS -I/opt/local/include" ;;
 esac
 
-AC_CHECK_HEADER(endian.h, AC_DEFINE(HAVE_ENDIAN_H, [1], [Define if endian.h exists]))
+AC_C_BIGENDIAN
 
 ACX_PTHREAD(
     [LIBS="$PTHREAD_LIBS $LIBS"
