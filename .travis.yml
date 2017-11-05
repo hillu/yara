@@ -48,11 +48,12 @@ script: |
   make clean && make
   case "$CONFIGFLAGS" in
     *--host=*mingw*) ;;
-    *) make check ;;
+    *) if ! make check; then
+         cat test-suite.log
+         return 1
+       fi ;;
   esac
   set +e
-
-after_failure: if [ -e test-suite.log ]; then cat test-suite.log; fi
 
 env:
   global:
