@@ -106,17 +106,27 @@ static LONG CALLBACK exception_handler(
 #include <signal.h>
 
 sigjmp_buf *exc_jmp_buf[MAX_THREADS];
+struct sigaction old_sigbus_act[MAX_THREADS];
+struct sigaction old_sigsegv_act[MAX_THREADS];
 
-static void exception_handler(int sig) {
-  if (sig == SIGBUS || sig == SIGSEGV)
-  {
-    int tidx = yr_get_tidx();
+static void exception_handler(int sig, siginfo_t *siginfo, void *context) {
+  struct sigaction* old_act;
+  int tidx = yr_get_tidx();
+  if (sig == SIGBUS)
+    old_act = &old_sigbus_act[tidx];
+  else if (sig == SIGSEGV)
+    old_act = &old_sigsegv_act[tidx];
+  else
+    return;
 
-    if (tidx != -1 && exc_jmp_buf[tidx] != NULL)
-      siglongjmp(*exc_jmp_buf[tidx], 1);
+  if (tidx != -1 && exc_jmp_buf[tidx] != NULL)
+    siglongjmp(*exc_jmp_buf[tidx], 1);
 
-    assert(FALSE);  // We should not reach this point.
-  }
+  if ( (old_act->sa_flags & SA_SIGINFO) &&
+       (old_act->sa_sigaction != NULL) )
+    old_act->sa_sigaction(sig, siginfo, context);
+  else if ( old_act->sa_handler != NULL)
+    old_act->sa_handler(sig);
 }
 
 typedef struct sigaction sa;
@@ -126,14 +136,12 @@ typedef struct sigaction sa;
   {                                                             \
     if (_do_)                                                   \
     {                                                           \
-      struct sigaction old_sigbus_act;                          \
-      struct sigaction old_sigsegv_act;                         \
       struct sigaction act;                                     \
-      act.sa_handler = exception_handler;                       \
-      act.sa_flags = 0; /* SA_ONSTACK? */                       \
+      act.sa_sigaction = exception_handler;                     \
+      act.sa_flags = SA_SIGINFO;                                \
       sigfillset(&act.sa_mask);                                 \
-      sigaction(SIGBUS, &act, &old_sigbus_act);                 \
-      sigaction(SIGSEGV, &act, &old_sigsegv_act);               \
+      sigaction(SIGBUS, &act, &old_sigbus_act[tidx]);           \
+      sigaction(SIGSEGV, &act, &old_sigsegv_act[tidx]);         \
       int tidx = yr_get_tidx();                                 \
       assert(tidx != -1);                                       \
       sigjmp_buf jb;                                            \
@@ -143,8 +151,8 @@ typedef struct sigaction sa;
       else                                                      \
         { _catch_clause_ }                                      \
       exc_jmp_buf[tidx] = NULL;                                 \
-      sigaction(SIGBUS, &old_sigbus_act, NULL);                 \
-      sigaction(SIGSEGV, &old_sigsegv_act, NULL);               \
+      sigaction(SIGBUS, &old_sigbus_act[tidx], NULL);           \
+      sigaction(SIGSEGV, &old_sigsegv_act[tidx], NULL);         \
     }                                                           \
     else                                                        \
     {                                                           \
