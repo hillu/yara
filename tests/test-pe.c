@@ -136,7 +136,7 @@ int main(int argc, char** argv)
 
 #endif
 
-#if defined(HAVE_LIBCRYPTO)
+#if defined(HAVE_LIBCRYPTO) || defined(HAVE_WINCRYPT_H)
 
   assert_true_rule_file(
       "import \"pe\" \
