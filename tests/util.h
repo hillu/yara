@@ -165,7 +165,7 @@ void assert_hex_atoms(
     if ((sz = read_file(filename, &buf)) == -1) {                       \
       fprintf(stderr, "%s:%d: cannot read file '%s'\n",                 \
               __FILE__, __LINE__, filename);                            \
-      exit(EXIT_FAILURE);                                               \
+      break;                                                            \
     }                                                                   \
     if (!matches_blob(rule, (uint8_t*) (buf), sz, NULL, 0)) {           \
       fprintf(stderr, "%s:%d: rule does not match contents of"          \
@@ -208,7 +208,7 @@ void assert_hex_atoms(
     if ((sz = read_file(filename, &buf)) == -1) {                       \
       fprintf(stderr, "%s:%d: cannot read file '%s'\n",                 \
               __FILE__, __LINE__, filename);                            \
-      exit(EXIT_FAILURE);                                               \
+      break;                                                            \
     }                                                                   \
     if (!matches_blob(rule, NULL, 0, (uint8_t*) buf, sz)) {             \
       fprintf(stderr, "%s:%d: rule does not matches (but should)\n",    \
@@ -226,7 +226,7 @@ void assert_hex_atoms(
     if ((sz = read_file(filename, &buf)) == -1) {                       \
       fprintf(stderr, "%s:%d: cannot read file '%s'\n",                 \
               __FILE__, __LINE__, filename);                            \
-      exit(EXIT_FAILURE);                                               \
+      break;                                                            \
     }                                                                   \
     if (matches_blob(rule, (uint8_t*) (buf), sz, NULL, 0)) {            \
       fprintf(stderr, "%s:%d: rule matches contents of"                 \
