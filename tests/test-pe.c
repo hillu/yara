@@ -158,6 +158,10 @@ int main(int argc, char** argv)
       "tests/data/"
       "d29e93c0fe4f108fa063e1a9692559a4278a0d51ab4feabbb231907dffaeb019");
 
+  // 04e86912d195d9189e64d1ce80374bed3073b0fcb731f3f403822a510e76ebaa
+  // 77e1167b4c91632ede90609219f68cd5b42e3bfa73e3de25fdd0379b9ab48ad5
+  // b605b216588fe454b76c51dbb407cc9e71f7b1932367d5557fcc296bd9f28d34
+
 #endif
 
   assert_true_rule_file(
