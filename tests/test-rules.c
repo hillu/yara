@@ -2157,8 +2157,8 @@ static void test_filesize()
   snprintf(
       rule,
       sizeof(rule),
-      "rule test { condition: filesize == %zd }",
-      sizeof(PE32_FILE));
+      "rule test { condition: filesize == %"PRIu64" }",
+      (uint64_t)sizeof(PE32_FILE));
 
   assert_true_rule_blob(rule, PE32_FILE);
 }

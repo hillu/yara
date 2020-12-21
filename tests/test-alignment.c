@@ -37,7 +37,8 @@ int err = 0;
 #define CHECK_SIZE(expr, size)                           \
   do                                                     \
   {                                                      \
-    printf("sizeof(" #expr ") = %zd ...", sizeof(expr)); \
+    printf("sizeof(" #expr ") = %"PRIu64" ...",          \
+        (uint64_t)sizeof(expr));                         \
     if (sizeof(expr) == size)                            \
     {                                                    \
       puts("ok");                                        \
@@ -49,21 +50,21 @@ int err = 0;
     }                                                    \
   } while (0);
 
-#define CHECK_OFFSET(expr, offset, subexpr)            \
-  do                                                   \
-  {                                                    \
-    printf(                                            \
-        "offsetof(" #expr ", " #subexpr ") = %zd ...", \
-        offsetof(expr, subexpr));                      \
-    if (offsetof(expr, subexpr) == offset)             \
-    {                                                  \
-      puts("ok");                                      \
-    }                                                  \
-    else                                               \
-    {                                                  \
-      printf("expected %d\n", offset);                 \
-      err = 1;                                         \
-    }                                                  \
+#define CHECK_OFFSET(expr, offset, subexpr)                    \
+  do                                                           \
+  {                                                            \
+    printf(                                                    \
+        "offsetof(" #expr ", " #subexpr ") = %"PRIu64" ...",   \
+            (uint64_t)offsetof(expr, subexpr));                \
+    if (offsetof(expr, subexpr) == offset)                     \
+    {                                                          \
+      puts("ok");                                              \
+    }                                                          \
+    else                                                       \
+    {                                                          \
+      printf("expected %d\n", offset);                         \
+      err = 1;                                                 \
+    }                                                          \
   } while (0)
 
 

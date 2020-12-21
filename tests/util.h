@@ -244,7 +244,7 @@ void assert_hex_atoms(
       yr_rules_destroy(rules);                                          \
     if (result != error) {                                              \
       fprintf(stderr, "%s:%d: expecting error %d but returned %d\n",    \
-              __FILE__, __LINE__, error, result);                       \
+              __FILE__, __LINE__, (int)error, result);                  \
       exit(EXIT_FAILURE);                                               \
     }                                                                   \
   } while (0);

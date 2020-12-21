@@ -469,7 +469,7 @@ void test_scanner()
     yr_scanner_destroy(scanner1);
     yr_scanner_destroy(scanner2);
     yr_rules_destroy(rules);
-    printf("expecting ERROR_SUCCESS (%d), got: %d\n", ERROR_SUCCESS, result);
+    printf("expecting ERROR_SUCCESS (%d), got: %d\n", (int)ERROR_SUCCESS, result);
     exit(EXIT_FAILURE);
   }
 
