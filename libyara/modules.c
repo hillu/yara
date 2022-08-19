@@ -40,48 +40,62 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
       size_t module_data_size);                  \
   int name##__unload(YR_OBJECT* main_structure); \
   int name##__initialize(YR_MODULE* module);     \
-  int name##__finalize(YR_MODULE* module);
+  int name##__finalize(YR_MODULE* module);       \
+                                                 \
+  static YR_MODULE name##__module = {            \
+      #name,                                     \
+      name##__declarations,                      \
+      name##__load,                              \
+      name##__unload,                            \
+      name##__initialize,                        \
+      name##__finalize};
 
 #include <modules/module_list>
 
 #undef MODULE
 
-#define MODULE(name)     \
-  {#name,                \
-   name##__declarations, \
-   name##__load,         \
-   name##__unload,       \
-   name##__initialize,   \
-   name##__finalize},
+YR_MODULE** yr_modules_table = NULL;
+int yr_modules_count = 0;
 
-YR_MODULE yr_modules_table[] = {
-#include <modules/module_list>
-};
+YR_API int yr_modules_add(YR_MODULE* module)
+{
+  int result = module->initialize(module);
+  if (result != ERROR_SUCCESS)
+    return result;
 
-#undef MODULE
+  yr_modules_count++;
+  yr_modules_table = realloc(
+      yr_modules_table, yr_modules_count * sizeof(YR_MODULE*));
+  yr_modules_table[yr_modules_count - 1] = module;
+
+  return ERROR_SUCCESS;
+}
+
+#define foreach_modules(module) \
+  for (int i = 0; i < yr_modules_count && (module = yr_modules_table[i]); i++)
 
 int yr_modules_initialize()
 {
-  int i;
+  int result;
 
-  for (i = 0; i < sizeof(yr_modules_table) / sizeof(YR_MODULE); i++)
-  {
-    int result = yr_modules_table[i].initialize(&yr_modules_table[i]);
+#define MODULE(name)                        \
+  result = yr_modules_add(&name##__module); \
+  if (result != ERROR_SUCCESS)              \
+    return result;
 
-    if (result != ERROR_SUCCESS)
-      return result;
-  }
+#include <modules/module_list>
+
+#undef MODULE
 
   return ERROR_SUCCESS;
 }
 
 int yr_modules_finalize()
 {
-  int i;
-
-  for (i = 0; i < sizeof(yr_modules_table) / sizeof(YR_MODULE); i++)
+  YR_MODULE* module;
+  foreach_modules(module)
   {
-    int result = yr_modules_table[i].finalize(&yr_modules_table[i]);
+    int result = module->finalize(module);
 
     if (result != ERROR_SUCCESS)
       return result;
@@ -94,12 +108,11 @@ int yr_modules_do_declarations(
     const char* module_name,
     YR_OBJECT* main_structure)
 {
-  int i;
-
-  for (i = 0; i < sizeof(yr_modules_table) / sizeof(YR_MODULE); i++)
+  YR_MODULE* module;
+  foreach_modules(module)
   {
-    if (strcmp(yr_modules_table[i].name, module_name) == 0)
-      return yr_modules_table[i].declarations(main_structure);
+    if (strcmp(module->name, module_name) == 0)
+      return module->declarations(main_structure);
   }
 
   return ERROR_UNKNOWN_MODULE;
@@ -107,8 +120,9 @@ int yr_modules_do_declarations(
 
 int yr_modules_load(const char* module_name, YR_SCAN_CONTEXT* context)
 {
-  int i, result;
+  int result;
 
+  YR_MODULE* module;
   YR_MODULE_IMPORT mi;
 
   YR_OBJECT* module_structure = (YR_OBJECT*) yr_hash_table_lookup(
@@ -151,11 +165,11 @@ int yr_modules_load(const char* module_name, YR_SCAN_CONTEXT* context)
           context->objects_table, module_name, NULL, module_structure),
       yr_object_destroy(module_structure));
 
-  for (i = 0; i < sizeof(yr_modules_table) / sizeof(YR_MODULE); i++)
+  foreach_modules(module)
   {
-    if (strcmp(yr_modules_table[i].name, module_name) == 0)
+    if (strcmp(module->name, module_name) == 0)
     {
-      result = yr_modules_table[i].load(
+      result = module->load(
           context, module_structure, mi.module_data, mi.module_data_size);
 
       if (result != ERROR_SUCCESS)
@@ -177,14 +191,16 @@ int yr_modules_load(const char* module_name, YR_SCAN_CONTEXT* context)
 
 int yr_modules_unload_all(YR_SCAN_CONTEXT* context)
 {
-  for (int i = 0; i < sizeof(yr_modules_table) / sizeof(YR_MODULE); i++)
+  YR_MODULE* module;
+
+  foreach_modules(module)
   {
     YR_OBJECT* module_structure = (YR_OBJECT*) yr_hash_table_remove(
-        context->objects_table, yr_modules_table[i].name, NULL);
+        context->objects_table, module->name, NULL);
 
     if (module_structure != NULL)
     {
-      yr_modules_table[i].unload(module_structure);
+      module->unload(module_structure);
       yr_object_destroy(module_structure);
     }
   }
