@@ -30,6 +30,13 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <yara/exec.h>
 #include <yara/libyara.h>
 #include <yara/modules.h>
+#include <yara/strutils.h>
+
+#if defined(HAVE_DLFCN_H)
+#include <dlfcn.h>
+#elif defined(_WIN32)
+#include <windows.h>
+#endif
 
 #define MODULE(name) extern YR_MODULE name##__module;
 
@@ -53,6 +60,85 @@ YR_API int yr_modules_add(YR_MODULE* module)
 
   return ERROR_SUCCESS;
 }
+
+#if defined(_WIN32)
+#define SO_SUFFIX ".dll"
+#elif defined(__APPLE__) && defined(__MACH__)
+#define SO_SUFFIX ".dylib"
+#else
+#define SO_SUFFIX ".so"
+#endif
+
+#if defined(HAVE_DLFCN_H) || defined(_WIN32)
+YR_API int yr_modules_add_plugin(char* name)
+{
+  int result;
+  char* dlopen_path;
+  char* alt_dlopen_path = NULL;
+
+  bool has_dot = strchr(name, '.');
+  bool has_path = strchr(name, '/') || strchr(name, '\\');
+  
+#if defined(HAVE_DLFCN_H)
+  void* h;
+#elif defined(_WIN32)
+  HANDLE h;
+#endif
+  
+  if (has_dot) {
+    dlopen_path = strdup(name);
+  } else {
+    yr_asprintf(&dlopen_path, "%s" SO_SUFFIX, name);
+  }
+
+  if (!has_path && !has_dot) {
+    if (!strncmp(name, "yara-", 5))
+      yr_asprintf(&alt_dlopen_path, "%s" SO_SUFFIX, name+5);
+    else
+      yr_asprintf(&alt_dlopen_path, "yara-%s" SO_SUFFIX, name);
+  }
+                   
+  YR_PLUGIN_MODULE_FUNC f;
+#if defined(HAVE_DLFCN_H)
+  h = dlopen(name, 0);
+  if (h == NULL && alt_dlopen_path)
+    h = dlopen(alt_dlopen_path, 0);
+  if (h == NULL) {
+      result = ERROR_COULD_NOT_OPEN_FILE;
+      goto out;
+  }
+  f = dlsym(h, "yara_module");
+#elif defined(_WIN32)
+  h = LoadLibraryA(dlopen_path);
+  if (h == NULL && alt_dlopen_path)
+    h = LoadLibraryA(alt_dlopen_path);
+  if (h == NULL) {
+      result = ERROR_COULD_NOT_OPEN_FILE;
+      goto out;
+  }
+  f = GetProcAddress(h, "yara_module");
+#endif
+  if (f == NULL) {
+    result = ERROR_COULD_NOT_OPEN_FILE;
+    goto out;
+  }
+  result = yr_modules_add(f());
+
+ out:
+  if (dlopen_path)
+    free(alt_dlopen_path);
+  if (alt_dlopen_path)
+    free(alt_dlopen_path);
+
+  return result;
+}
+
+#else
+YR_API int yr_modules_add_plugin(char* name)
+{
+  return ERROR_COULD_NOT_READ_FILE;
+}
+#endif
 
 #define foreach_modules(module) \
   for (int i = 0; i < yr_modules_count && (module = yr_modules_table[i]); i++)

@@ -35,7 +35,7 @@ AC_C_BIGENDIAN
 # Arrange for 64-bit file offsets.
 AC_SYS_LARGEFILE
 
-LT_INIT
+LT_INIT([dlopen])
 AC_CANONICAL_HOST
 
 case $host_alias in
@@ -338,7 +338,12 @@ AS_IF([test "x$have_crypto" = "xno"],
     PC_REQUIRES_PRIVATE="$PC_REQUIRES_PRIVATE libcrypto"
   ])
 
-
+AS_IF(
+  [ test "$ac_cv_header_dlfcn_h" = yes ],
+  [
+    LIBS="$LIBS $lt_cv_dlopen_libs"
+    PC_LIBS_PRIVATE="$PC_LIBS_PRIVATE $lt_cv_dlopen_libs"
+  ])
 
 AM_CONDITIONAL([GCC], [test "x$GCC" = xyes])
 AM_CONDITIONAL([PROTOC], [test "x${PROTOC}" != "x"])

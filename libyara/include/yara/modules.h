@@ -325,6 +325,8 @@ struct YR_MODULE_IMPORT
 
 YR_API int yr_modules_add(YR_MODULE* module);
 
+YR_API int yr_modules_add_plugin(char* name);
+
 int yr_modules_initialize(void);
 
 int yr_modules_finalize(void);
