@@ -92,6 +92,8 @@ test_re_split_SOURCES = tests/test-re-split.c tests/util.c
 test_re_split_LDADD = libyara/.libs/libyara.a
 test_async_SOURCES = tests/test-async.c tests/util.c
 test_async_LDADD = libyara/.libs/libyara.a
+test_module_SOURCES = tests/test-module.c tests/util.c
+test_module_LDADD = libyara/.libs/libyara.a
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = TOP_SRCDIR=$(top_srcdir) TOP_BUILDDIR=$(top_builddir)
@@ -109,7 +111,8 @@ check_PROGRAMS = \
   test-math \
   test-stack \
   test-re-split \
-  test-async
+  test-async \
+  test-module
 
 EXTRA_PROGRAMS = tests/mapper
 CLEANFILES = tests/mapper$(EXEEXT)
