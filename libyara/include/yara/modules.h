@@ -303,6 +303,9 @@ struct YR_MODULE
   YR_EXT_FINALIZE_FUNC finalize;
 };
 
+typedef YR_MODULE* (*YR_PLUGIN_MODULE_FUNC)();
+
+#if defined(YR_MODULE_PLUGIN)
 #define _yr_module_define_named(name) \
   YR_MODULE name##__module = {        \
       #name,                          \
@@ -310,7 +313,19 @@ struct YR_MODULE
       name##__load,                   \
       name##__unload,                 \
       name##__initialize,             \
-      name##__finalize}
+      name##__finalize};              \
+                                      \
+  YR_API YR_MODULE* yara_module() { return &name##__module; }
+#else /* regular build */
+#define _yr_module_define_named(name) \
+  YR_MODULE name##__module = {        \
+      #name,                          \
+      name##__declarations,           \
+      name##__load,                   \
+      name##__unload,                 \
+      name##__initialize,             \
+      name##__finalize};
+#endif
 
 #define yr_module_define_named(name) _yr_module_define_named(name)
 
