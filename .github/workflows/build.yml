@@ -37,11 +37,10 @@ jobs:
         if: true
         run: |
           set -x
-          ls -l
           ls -l .libs/
-          file yara
-          otool -l ./yara
-          otool -L ./yara
+          ( echo BEGIN yara; cat yara; echo END yara )
+          otool -l .libs/yara
+          otool -L .libs/yara
           ./yara --version
       - name: Run tests
         run: make check
