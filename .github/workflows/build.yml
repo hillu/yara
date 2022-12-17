@@ -17,6 +17,7 @@ jobs:
             automake \
             bison \
             flex \
+            gcc@12 \
             libtool \
             pkg-config \
             jansson \
@@ -26,11 +27,11 @@ jobs:
       - name: Print versions
         run: |
           bison --version
-          gcc --version
+          $(brew --prefix)/bin/gcc-12 --version
       - name: Prepare for building
         run: |
           ./bootstrap.sh
-          ./configure --enable-debug --enable-cuckoo --enable-magic
+          ./configure --enable-debug --enable-cuckoo --enable-magic CC=$(brew --prefix)/bin/gcc-12
       - name: Build
         run: make clean && make V=1
       - name: Diag
