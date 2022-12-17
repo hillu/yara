@@ -21,7 +21,8 @@ jobs:
             pkg-config \
             jansson \
             libmagic \
-            openssl@3
+            openssl@3 \
+            file
       - name: Print versions
         run: |
           bison --version
@@ -31,7 +32,17 @@ jobs:
           ./bootstrap.sh
           ./configure --enable-debug --enable-cuckoo --enable-magic
       - name: Build
-        run: make clean && make
+        run: make clean && make V=1
+      - name: Diag
+        if: true
+        run: |
+          set -x
+          ls -l
+          ls -l .libs/
+          file yara
+          otool -l ./yara
+          otool -L ./yara
+          ./yara --version
       - name: Run tests
         run: make check
       - name: Print tests errors
