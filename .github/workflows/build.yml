@@ -21,9 +21,7 @@ jobs:
             pkg-config \
             jansson \
             libmagic \
-            openssl@3 \
-            protobuf \
-            protobuf-c
+            openssl@3
       - name: Print versions
         run: |
           bison --version
@@ -31,7 +29,7 @@ jobs:
       - name: Prepare for building
         run: |
           ./bootstrap.sh
-          ./configure --enable-debug --enable-cuckoo --enable-magic --enable-pb-tests
+          ./configure --enable-debug --enable-cuckoo --enable-magic
       - name: Build
         run: make clean && make
       - name: Run tests
