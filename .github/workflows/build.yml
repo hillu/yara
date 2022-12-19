@@ -28,31 +28,18 @@ jobs:
         run: |
           bison --version
           $(brew --prefix)/bin/gcc-12 --version
-      - name: Diag1
-        run: |
-          find $(brew --prefix)/include -print0 | xargs -0 ls -ld
-          find $(brew --prefix)/lib -print0 | xargs -0 ls -ld
       - name: Prepare for building
         run: |
           ./bootstrap.sh
           ./configure --enable-debug --enable-cuckoo --enable-magic CC=$(brew --prefix)/bin/gcc-12 CPPFLAGS=-I$(brew --prefix)/include LDFLAGS=-L$(brew --prefix)/lib
       - name: Build
         run: make clean && make V=1
-      - name: Diag
-        if: true
-        run: |
-          set -x
-          ls -l .libs/
-          ( echo BEGIN yara; cat yara; echo END yara )
-          otool -hV .libs/libyara.dylib
-          otool -L .libs/libyara.dylib
-          otool -hV .libs/yara
-          otool -L .libs/yara
-          export DYLD_PRINT_LIBRARIES=ON
-          export DYLD_PRINT_OPTS=ON
-          ./yara --version
       - name: Run tests
         run: make check
+      - name: Install, test
+        run: |
+          make install
+          /usr/local/bin/yara --version
       - name: Print tests errors
         if: ${{ failure() }}
         run: cat test-suite.log
