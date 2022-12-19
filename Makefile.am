@@ -75,6 +75,8 @@ MODULES += libyara/modules/pe/pe_utils.c
 
 MODULES += libyara/modules/console/console.c
 
+MODULES += libyara/modules/string/string.c
+
 if CUCKOO_MODULE
 MODULES += libyara/modules/cuckoo/cuckoo.c
 endif
@@ -281,36 +283,36 @@ tests_mapper_SOURCES = tests/mapper.c
 tests_mapper_CFLAGS = -O0
 
 test_alignment_SOURCES = tests/test-alignment.c tests/util.c
-test_alignment_LDADD = libyara.a
+test_alignment_LDADD = libyara.la
 test_arena_SOURCES = tests/test-arena.c tests/util.c
-test_arena_LDADD = libyara.a
+test_arena_LDADD = libyara.la
 test_atoms_SOURCES = tests/test-atoms.c tests/util.c
-test_atoms_LDADD = libyara.a
+test_atoms_LDADD = libyara.la
 test_rules_SOURCES = tests/test-rules.c tests/util.c
-test_rules_LDADD = libyara.a
+test_rules_LDADD = libyara.la
 if POSIX
 EXTRA_test_rules_DEPENDENCIES = tests/mapper$(EXEEXT)
 endif
 test_pe_SOURCES = tests/test-pe.c tests/util.c
-test_pe_LDADD = libyara.a
+test_pe_LDADD = libyara.la
 test_elf_SOURCES = tests/test-elf.c tests/util.c
-test_elf_LDADD = libyara.a
+test_elf_LDADD = libyara.la
 test_version_SOURCES = tests/test-version.c tests/util.c
-test_version_LDADD = libyara.a
+test_version_LDADD = libyara.la
 test_api_SOURCES = tests/test-api.c tests/util.c
-test_api_LDADD = libyara.a
+test_api_LDADD = libyara.la
 test_bitmask_SOURCES = tests/test-bitmask.c tests/util.c
-test_bitmask_LDADD = libyara.a
+test_bitmask_LDADD = libyara.la
 test_math_SOURCES = tests/test-math.c tests/util.c
-test_math_LDADD = libyara.a
+test_math_LDADD = libyara.la
 test_string_SOURCES = tests/test-string.c tests/util.c
-test_string_LDADD = libyara.a
+test_string_LDADD = libyara.la
 test_stack_SOURCES = tests/test-stack.c tests/util.c
-test_stack_LDADD = libyara.a
+test_stack_LDADD = libyara.la
 test_re_split_SOURCES = tests/test-re-split.c tests/util.c
-test_re_split_LDADD = libyara.a
+test_re_split_LDADD = libyara.la
 test_async_SOURCES = tests/test-async.c tests/util.c
-test_async_LDADD = libyara.a
+test_async_LDADD = libyara.la
 
 TESTS = $(check_PROGRAMS)
 TESTS_ENVIRONMENT = TOP_SRCDIR=$(top_srcdir) TOP_BUILDDIR=$(top_builddir)
