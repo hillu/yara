@@ -30,11 +30,12 @@ jobs:
           $(brew --prefix)/bin/gcc-12 --version
       - name: Diag1
         run: |
-          find $(brew --prefix) -type f -print0 | xargs -0 ls -ld
+          find $(brew --prefix)/include -print0 | xargs -0 ls -ld
+          find $(brew --prefix)/lib -print0 | xargs -0 ls -ld
       - name: Prepare for building
         run: |
           ./bootstrap.sh
-          ./configure --enable-debug --enable-cuckoo --enable-magic CC=$(brew --prefix)/bin/gcc-12
+          ./configure --enable-debug --enable-cuckoo --enable-magic CC=$(brew --prefix)/bin/gcc-12 CPPFLAGS=-I$(brew --prefix)/include LDFLAGS=-L$(brew --prefix)/lib
       - name: Build
         run: make clean && make V=1
       - name: Diag
