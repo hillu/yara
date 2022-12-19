@@ -30,7 +30,7 @@ jobs:
           $(brew --prefix)/bin/gcc-12 --version
       - name: Diag1
         run: |
-          find $(brew --prefix) -type f | xargs ls -ld
+          find $(brew --prefix) -type f -print0 | xargs -0 ls -ld
       - name: Prepare for building
         run: |
           ./bootstrap.sh
