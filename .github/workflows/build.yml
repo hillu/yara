@@ -44,11 +44,12 @@ jobs:
           set -x
           ls -l .libs/
           ( echo BEGIN yara; cat yara; echo END yara )
-          otool -l .libs/yara
+          otool -hV .libs/libyara.dylib
+          otool -L .libs/libyara.dylib
+          otool -hV .libs/yara
           otool -L .libs/yara
           export DYLD_PRINT_LIBRARIES=ON
           export DYLD_PRINT_OPTS=ON
-          export DYLD_FORCE_FLAT_NAMESPACE=ON
           ./yara --version
       - name: Run tests
         run: make check
